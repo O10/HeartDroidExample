@@ -7,6 +7,7 @@ import android.support.v4.app.NotificationCompat;
 import heart.Action;
 import heart.State;
 import pl.edu.agh.heartdroidexample.DroidApp;
+import pl.edu.agh.heartdroidexample.R;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -16,17 +17,19 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class ShowParkingNotification implements Action {
 
+    private final static int notId = 123;
+
     @Override
     public void execute(State state) {
 
         final Notification notification = new NotificationCompat.Builder(DroidApp.instance)
-                .setContentTitle("Strefa płatnego parkowania!")
-                .setContentText("Nie zapomnij o bilecie parkingowym.").build();
+                .setContentTitle(DroidApp.instance.getString(R.string.not_title))
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentText(DroidApp.instance.getString(R.string.not_content)).build();
 
-        int mNotificationId = 123;
         NotificationManager mNotifyMgr =
                 (NotificationManager) DroidApp.instance.getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.notify(mNotificationId, notification);
+        mNotifyMgr.notify(notId, notification);
 
     }
 

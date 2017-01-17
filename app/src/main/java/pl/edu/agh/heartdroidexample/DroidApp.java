@@ -3,7 +3,6 @@ package pl.edu.agh.heartdroidexample;
 import android.app.Application;
 import android.location.Location;
 
-import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionResult;
 
 import pl.edu.agh.heartdroidexample.util.Symbolics;

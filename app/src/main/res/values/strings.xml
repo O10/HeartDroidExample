@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HeartDroidExample</string>
+
+    <string name="not_title">Strefa płatnego parkowania!</string>
+    <string name="not_content">Nie zapomnij o bilecie parkingowym.</string>
+    <string name="ui_update">Ui updated</string>
 </resources>

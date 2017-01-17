@@ -45,6 +45,9 @@ import static pl.edu.agh.heartdroidexample.util.GeneralUtils.DEFAULT_INTERVAL;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    private final static int INFERENCE_PERIOD_SEC = 15;
+    private final static int PENDING_INTENT_ID = 100;
+
     private final String TAG = getClass().getSimpleName();
 
     private GoogleApiClient googleApiClient;
@@ -121,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private PendingIntent buildActivityRecognitionPendingIntent() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return PendingIntent.getActivity(this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(this, PENDING_INTENT_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void startInference() {
@@ -133,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 @Override
                 public void run() {
                     modelTableInfoView.notifyModelChanged(currentState);
-                    Toast.makeText(MainActivity.this, "Ui updated", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.ui_update), Toast.LENGTH_SHORT).show();
                 }
             });
         } catch (NotInTheDomainException | AttributeNotRegisteredException | BuilderException e) {
@@ -171,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void run() {
                 startInference();
             }
-        }, 0, 15, TimeUnit.SECONDS);
+        }, 0, INFERENCE_PERIOD_SEC, TimeUnit.SECONDS);
 
     }
 
