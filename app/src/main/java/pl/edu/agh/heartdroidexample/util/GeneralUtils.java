@@ -16,7 +16,7 @@ import heart.parser.hmr.runtime.SourceString;
  */
 
 public class GeneralUtils {
-    private static final long DEFAULT_LOCATION_INTERVAL = 5000;
+    public static final long DEFAULT_INTERVAL = 5000;
 
     public static SourceString loadHmrFileIntoSourceString(Context context, String filename) throws IOException {
         InputStream inputStream = context.getAssets().open(filename);
@@ -34,7 +34,7 @@ public class GeneralUtils {
     public static LocationRequest createDefaultLocationRequest() {
         final LocationRequest locationRequest = LocationRequest.create();
         locationRequest
-                .setInterval(DEFAULT_LOCATION_INTERVAL)
+                .setInterval(DEFAULT_INTERVAL)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         return locationRequest;
     }

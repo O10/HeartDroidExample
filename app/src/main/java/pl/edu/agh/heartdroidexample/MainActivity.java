@@ -1,5 +1,7 @@
 package pl.edu.agh.heartdroidexample;
 
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
@@ -33,9 +36,12 @@ import heart.exceptions.ModelBuildingException;
 import heart.exceptions.NotInTheDomainException;
 import heart.exceptions.ParsingSyntaxException;
 import heart.parser.hmr.HMRParser;
+import heart.uncertainty.CertaintyFactorsEvaluator;
 import heart.xtt.XTTModel;
 import pl.edu.agh.heartdroidexample.util.GeneralUtils;
 import pl.edu.agh.heartdroidexample.util.Symbolics;
+
+import static pl.edu.agh.heartdroidexample.util.GeneralUtils.DEFAULT_INTERVAL;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -88,6 +94,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         googleApiClient.disconnect();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        DroidApp.instance.lastKnownResult = ActivityRecognitionResult.extractResult(intent);
+    }
+
     private void logModelState() {
         final State currentState = HeaRT.getWm().getCurrentState(model);
         for (StateElement se : currentState) {
@@ -106,14 +118,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    private PendingIntent buildActivityRecognitionPendingIntent() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return PendingIntent.getActivity(this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
     private void startInference() {
         try {
-            HeaRT.goalDrivenInference(model, new String[]{"parkingReminder"}, new Configuration.Builder().setInitialState(HeaRT.getWm().getCurrentState()).build());
+            HeaRT.goalDrivenInference(model, new String[]{"parkingReminder"}, new Configuration.Builder().setUte(new CertaintyFactorsEvaluator()).setInitialState(HeaRT.getWm().getCurrentState()).build());
             logModelState();
+            final State currentState = HeaRT.getWm().getCurrentState(model);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    modelTableInfoView.notifyModelChanged();
+                    modelTableInfoView.notifyModelChanged(currentState);
                     Toast.makeText(MainActivity.this, "Ui updated", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -127,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnected(@Nullable Bundle bundle) {
         DroidApp.instance.lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, GeneralUtils.createDefaultLocationRequest(), this);
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, DEFAULT_INTERVAL, buildActivityRecognitionPendingIntent());
     }
 
     @Override
@@ -151,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             public void run() {
                 startInference();
             }
-        }, 0, 20, TimeUnit.SECONDS);
+        }, 0, 15, TimeUnit.SECONDS);
 
     }
 

@@ -362,6 +362,10 @@ xrule parkingReminder/20:
     ==>
     [
         notification set start_parking_fee
+    ]
+    **>
+    [
+         'pl.edu.agh.heartdroidexample.actions.ShowParkingNotification'
     ].
     #1
 

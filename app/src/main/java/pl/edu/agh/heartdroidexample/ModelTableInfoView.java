@@ -49,18 +49,17 @@ public class ModelTableInfoView extends TableLayout {
             addView(tableRow);
         }
 
-        notifyModelChanged();
+        notifyModelChanged(HeaRT.getWm().getCurrentState());
     }
 
-    public void notifyModelChanged() {
-        final State currentState = HeaRT.getWm().getCurrentState(model);
+    public void notifyModelChanged(State state) {
 
-        for (StateElement se : currentState) {
+        for (StateElement se : state) {
             TableRow attRow = attributeNameToRowMap.get(se.getAttributeName());
 
             updateRowText(attRow, 0, se.getAttributeName());
             updateRowText(attRow, 1, se.getValue().toString());
-            updateRowText(attRow, 2, String.valueOf(se.getValue().getCertaintyFactor()));
+            updateRowText(attRow, 2, String.format("%.3f", se.getValue().getCertaintyFactor()));
         }
 
     }
